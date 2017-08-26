@@ -1,0 +1,3 @@
+{% set current_path = app.request.get('_route') %}
+
+<li class="{{ nav_is_current(current_path, 'logout') }}"><a href="{{ url('logout') }}">Logout</a></li>
