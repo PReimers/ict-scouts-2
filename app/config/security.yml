@@ -2,6 +2,11 @@
 # https://symfony.com/doc/current/security.html
 security:
 
+    role_hierarchy:
+        ROLE_ADMIN:     [ROLE_SCOUT]
+        ROLE_SCOUT:     [ROLE_TALENT]
+        ROLE_TALENT:    [ROLE_USER]
+
     # https://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
     providers:
         google_users:

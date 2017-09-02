@@ -37,3 +37,6 @@ services:
 
     AppBundle\Service\GoogleService:
         public: true
+
+    AppBundle\Service\GoogleUserService:
+        public: true

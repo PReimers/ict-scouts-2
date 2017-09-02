@@ -1,6 +1,8 @@
 /.web-server-pid
 /app/config/parameters.yml
 /app/Resources/config/client_secret.json
+/app/Resources/data/Postcode/*
+!/app/Resources/data/Postcode/.gitkeep
 /build/
 /phpunit.xml
 /var/*

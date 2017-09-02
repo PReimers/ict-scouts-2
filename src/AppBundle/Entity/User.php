@@ -2,11 +2,13 @@
 
 namespace AppBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * User
+ * User.
  *
  * @ORM\Table(name="users")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
@@ -32,20 +34,6 @@ class User implements UserInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="given_name", type="string", length=100)
-     */
-    private $givenName;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="family_name", type="string", length=100)
-     */
-    private $familyName;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="email", type="string", length=255, unique=true)
      */
     private $email;
@@ -64,25 +52,62 @@ class User implements UserInterface
      */
     private $accessTokenExpiresAt;
 
+    /**
+     * @var Person
+     *
+     * @ORM\OneToOne(targetEntity="AppBundle\Entity\Person", mappedBy="user")
+     */
+    private $person;
 
     /**
-     * Get id
+     * @var ArrayCollection
+     *
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Group", inversedBy="users", cascade={"all"})
+     * @ORM\JoinTable(
+     *     name="user_has_groups", joinColumns={
+     *          @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     *     },
+     *     inverseJoinColumns={
+     *          @ORM\JoinColumn(name="group_id", referencedColumnName="id")
+     *     }
+     * )
+     */
+    private $groups;
+
+    /**
+     * @var ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\TalentNote", mappedBy="user")
+     */
+    private $talentNotes;
+
+    /**
+     * User constructor.
+     */
+    public function __construct()
+    {
+        $this->groups = new ArrayCollection();
+        $this->talentNotes = new ArrayCollection();
+    }
+
+    /**
+     * Get id.
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * Set googleId
+     * Set googleId.
      *
      * @param string $googleId
      *
      * @return User
      */
-    public function setGoogleId($googleId)
+    public function setGoogleId(string $googleId): User
     {
         $this->googleId = $googleId;
 
@@ -90,71 +115,23 @@ class User implements UserInterface
     }
 
     /**
-     * Get googleId
+     * Get googleId.
      *
      * @return string
      */
-    public function getGoogleId()
+    public function getGoogleId(): string
     {
         return $this->googleId;
     }
 
     /**
-     * Set givenName
-     *
-     * @param string $givenName
-     *
-     * @return User
-     */
-    public function setGivenName($givenName)
-    {
-        $this->givenName = $givenName;
-
-        return $this;
-    }
-
-    /**
-     * Get givenName
-     *
-     * @return string
-     */
-    public function getGivenName()
-    {
-        return $this->givenName;
-    }
-
-    /**
-     * Set familyName
-     *
-     * @param string $familyName
-     *
-     * @return User
-     */
-    public function setFamilyName($familyName)
-    {
-        $this->familyName = $familyName;
-
-        return $this;
-    }
-
-    /**
-     * Get familyName
-     *
-     * @return string
-     */
-    public function getFamilyName()
-    {
-        return $this->familyName;
-    }
-
-    /**
-     * Set email
+     * Set email.
      *
      * @param string $email
      *
      * @return User
      */
-    public function setEmail($email)
+    public function setEmail(string $email): User
     {
         $this->email = $email;
 
@@ -162,23 +139,23 @@ class User implements UserInterface
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
-    public function getEmail()
+    public function getEmail(): string
     {
         return $this->email;
     }
 
     /**
-     * Set accessToken
+     * Set accessToken.
      *
      * @param string $accessToken
      *
      * @return User
      */
-    public function setAccessToken($accessToken)
+    public function setAccessToken(string $accessToken): User
     {
         $this->accessToken = $accessToken;
 
@@ -186,23 +163,23 @@ class User implements UserInterface
     }
 
     /**
-     * Get accessToken
+     * Get accessToken.
      *
      * @return string
      */
-    public function getAccessToken()
+    public function getAccessToken(): string
     {
         return $this->accessToken;
     }
 
     /**
-     * Set accessTokenExpiresAt
+     * Set accessTokenExpiresAt.
      *
      * @param \DateTime $accessTokenExpiresAt
      *
      * @return User
      */
-    public function setAccessTokenExpiresAt($accessTokenExpiresAt)
+    public function setAccessTokenExpiresAt(\DateTime $accessTokenExpiresAt): User
     {
         $this->accessTokenExpiresAt = $accessTokenExpiresAt;
 
@@ -210,13 +187,101 @@ class User implements UserInterface
     }
 
     /**
-     * Get accessTokenExpiresAt
+     * Get accessTokenExpiresAt.
      *
      * @return \DateTime
      */
-    public function getAccessTokenExpiresAt()
+    public function getAccessTokenExpiresAt(): \DateTime
     {
         return $this->accessTokenExpiresAt;
+    }
+
+    /**
+     * Set person.
+     *
+     * @param Person $person
+     *
+     * @return User
+     */
+    public function setPerson(Person $person): User
+    {
+        $this->person = $person;
+
+        return $this;
+    }
+
+    /**
+     * Get person.
+     *
+     * @return Person
+     */
+    public function getPerson(): Person
+    {
+        return $this->person;
+    }
+
+    /**
+     * Add group to user.
+     *
+     * @param Group $group
+     */
+    public function addGroup(Group $group): void
+    {
+        if (!$this->groups->contains($group)) {
+            $this->groups->add($group);
+        }
+    }
+
+    /**
+     * Remove group from user.
+     *
+     * @param Group $group
+     */
+    public function removeGroup(Group $group): void
+    {
+        $this->groups->removeElement($group);
+    }
+
+    /**
+     * Get groups of this user.
+     *
+     * @return Collection
+     */
+    public function getGroups(): Collection
+    {
+        return $this->groups;
+    }
+
+    /**
+     * Add talent note.
+     *
+     * @param TalentNote $talentNote
+     */
+    public function addTalentNote(TalentNote $talentNote): void
+    {
+        if (!$this->talentNotes->contains($talentNote)) {
+            $this->talentNotes->add($talentNote);
+        }
+    }
+
+    /**
+     * Remove talent note.
+     *
+     * @param TalentNote $talentNote
+     */
+    public function removeTalentNote(TalentNote $talentNote): void
+    {
+        $this->talentNotes->removeElement($talentNote);
+    }
+
+    /**
+     * Get talent notes.
+     *
+     * @return Collection|null
+     */
+    public function getTalentNotes(): ?Collection
+    {
+        return $this->talentNotes;
     }
 
     /**
@@ -235,7 +300,7 @@ class User implements UserInterface
      *
      * @return (Role|string)[] The user roles
      */
-    public function getRoles()
+    public function getRoles(): array
     {
         return [
             'ROLE_USER',
@@ -250,9 +315,9 @@ class User implements UserInterface
      *
      * @return string The password
      */
-    public function getPassword()
+    public function getPassword(): ?string
     {
-        // TODO: Implement getPassword() method.
+        return null;
     }
 
     /**
@@ -262,9 +327,9 @@ class User implements UserInterface
      *
      * @return string|null The salt
      */
-    public function getSalt()
+    public function getSalt(): ?string
     {
-        // TODO: Implement getSalt() method.
+        return null;
     }
 
     /**
@@ -272,7 +337,7 @@ class User implements UserInterface
      *
      * @return string The username
      */
-    public function getUsername()
+    public function getUsername(): string
     {
         return $this->getEmail();
     }
@@ -283,9 +348,16 @@ class User implements UserInterface
      * This is important if, at any given point, sensitive information like
      * the plain-text password is stored on this object.
      */
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
-        // TODO: Implement eraseCredentials() method.
+        return;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getUsername();
     }
 }
-
