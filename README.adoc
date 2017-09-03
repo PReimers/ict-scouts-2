@@ -1,0 +1,50 @@
+= ICT-Scouts / Campus - Talent-App
+Patrick Reimers <patrick@reimers.me>
+v0.1, 2017-09-03
+
+Management application for ICT-Scouts / Campus
+
+
+== Installation
+Place Google-API authentication file in ```app/Resources/config/client_secret.json```
+
+[source,bash]
+.Install dependencies
+----
+composer install --no-dev
+----
+
+.Create database structure
+[source,bash]
+----
+php bin/console doctrine:schema:create
+----
+
+.Populate database
+[source,bash]
+----
+mysql [DATABASE] < data/_init.sql
+----
+
+== Development
+
+=== Installation
+[source,bash]
+.Install composer dependencies
+----
+composer install
+----
+
+.Install npm dependencies
+[source,bash]
+----
+npm install
+----
+
+=== Commands
+
+.Install Assets
+[source,bash]
+----
+./node_modules/.bin/encore [dev|prod] [--watch]
+----

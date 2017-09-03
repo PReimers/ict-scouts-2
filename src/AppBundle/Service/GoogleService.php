@@ -140,8 +140,10 @@ class GoogleService
     public function setScope($scope): Google_Client
     {
         if ( $scope === self::SERVICE ) {
+            $this->client->setScopes([]);
             $this->client->addScope( $this->getServiceScopes() );
         } else {
+            $this->client->setScopes([]);
             $this->client->addScope( $this->getUserScopes() );
         }
 

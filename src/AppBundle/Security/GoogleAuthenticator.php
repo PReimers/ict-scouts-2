@@ -150,17 +150,8 @@ class GoogleAuthenticator extends AbstractGuardAuthenticator
 
         /** If user does not exist create it. */
         if (!$user) {
-            /** @ToDO: How to get User info? */
-            $this->googleUserService->getUser($userData->getId());
-            die();
-
-//            $user = new User();
-//            $user->setGoogleId($userData->getId());
-//            $user->setEmail($userData->getEmail());
-//            $user->setFamilyName($userData->getFamilyName());
-//            $user->setGivenName($userData->getGivenName());
-//
-//            $this->entityManager->persist($user);
+            $googleUser = $this->googleUserService->getGoogleUser($userData->getId());
+            $user = $this->googleUserService->createUser($googleUser);
         }
 
         $user->setAccessToken($client->getAccessToken()['access_token']);

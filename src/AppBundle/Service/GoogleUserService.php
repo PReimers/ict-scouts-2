@@ -2,14 +2,8 @@
 
 namespace AppBundle\Service;
 
-//use AppBundle\Entity\Group;
-//use AppBundle\Entity\Person;
-//use AppBundle\Entity\Scout;
-//use AppBundle\Entity\Talent;
-//use AppBundle\Entity\TalentStatusHistory;
 use AppBundle\Entity\Person;
 use AppBundle\Entity\User;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -28,21 +22,6 @@ class GoogleUserService
      * @var GoogleService
      */
     private $googleService;
-
-//    /**
-//     * @var Group
-//     */
-//    private $adminGroup;
-//
-//    /**
-//     * @var Group
-//     */
-//    private $scoutGroup;
-//
-//    /**
-//     * @var Group
-//     */
-//    private $talentGroup;
 
     /**
      * GoogleUserService constructor.
@@ -64,7 +43,7 @@ class GoogleUserService
      *
      * @return GoogleService
      */
-    public function getGoogleService()
+    public function getGoogleService(): GoogleService
     {
         return $this->googleService;
     }
@@ -78,7 +57,7 @@ class GoogleUserService
      * @throws \Doctrine\ORM\ORMInvalidArgumentException
      * @throws \Exception
      */
-    public function getAllUsers($domain)
+    public function getAllUsers($domain): void
     {
         $this->googleService->auth(GoogleService::SERVICE);
         $this->googleService->getClient()->setSubject($this->googleService->getAdminUser());
@@ -93,17 +72,21 @@ class GoogleUserService
             $dbUser = $this->entityManager->getRepository('AppBundle:User')->findOneBy(['googleId' => $user->getId()]);
 
             if (!$dbUser) {
-                //$dbUser = new User($this->createPerson($user), $user->getId(), $user->getPrimaryEmail());
-                //$this->entityManager->persist($dbUser);
                 $this->createUser($user);
-                $this->entityManager->flush();
             }
 
-            //$this->updateUser($dbUser, $user);
         }
+        $this->entityManager->flush();
     }
 
-    public function createUser(\Google_Service_Directory_User $googleUser): void
+    /**
+     * Creates a new User and returns the User-Object.
+     *
+     * @param \Google_Service_Directory_User $googleUser
+     *
+     * @return User
+     */
+    public function createUser(\Google_Service_Directory_User $googleUser): User
     {
         $user = new User();
         $user->setGoogleId($googleUser->getId());
@@ -114,53 +97,27 @@ class GoogleUserService
         $person->setUser($user);
         $this->entityManager->persist($person);
         $user->setPerson($person);
+
+        return $user;
     }
 
-    public function getUser($initUser)
+    /**
+     * Get Google Service Directory User Object for a given Google User ID.
+     *
+     * @param $googleUserId
+     *
+     * @return \Google_Service_Directory_User
+     * @throws \Exception
+     */
+    public function getGoogleUser($googleUserId): \Google_Service_Directory_User
     {
-        /** @ToDO: Fix permission error. */
-        $serviceClient = clone($this->googleService);
+        $serviceClient = clone $this->googleService;
         $serviceClient->auth(GoogleService::SERVICE);
         $serviceClient->getClient()->setSubject($this->googleService->getAdminUser());
 
         $service = new \Google_Service_Directory($serviceClient->getClient());
 
-        $user = $service->users->get($initUser);
-
-        var_dump($user);
+        return $service->users->get($googleUserId);
     }
 
-//    /**
-//     * Update AccessToken data.
-//     *
-//     * @param int   $googleId
-//     * @param array $accessToken =null
-//     *
-//     * @throws \Doctrine\ORM\OptimisticLockException
-//     * @throws \Doctrine\ORM\ORMInvalidArgumentException
-//     * @throws \Exception
-//     *
-//     * @return bool
-//     */
-//    public function updateUserAccessToken($googleId, array $accessToken = null): bool
-//    {
-//        /** @var User $user */
-//        $user = $this->entityManager->getRepository('AppBundle:User')->findOneBy(['googleId' => $googleId]);
-//
-//        if ($user) {
-//            if ($accessToken) {
-//                $user->setAccessToken($accessToken['access_token']);
-//                $user->setAccessTokenExpire(
-//                    (new \DateTime())->add(new \DateInterval('PT'.($accessToken['expires_in'] - 5).'S'))
-//                );
-//
-//                $this->entityManager->persist($user);
-//                $this->entityManager->flush();
-//            }
-//
-//            return true;
-//        }
-//
-//        return false;
-//    }
 }
